@@ -11,7 +11,7 @@ RUN set -ex && \
     make install-bin && \
     cd .. && \
     rm -rf /usr/src/haproxy-1.6.8 && \
-    apk del musl-dev linux-headers curl gcc pcre-dev make zlib-dev && \
+    apk del musl-dev linux-headers gcc pcre-dev make zlib-dev && \
     apk add musl pcre zlib && \
     rm /var/cache/apk/*
 
