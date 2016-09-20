@@ -6,6 +6,7 @@ import (
     "bytes"
     "os/exec"
     "io/ioutil"
+    "sync"
 )
 
 type HAProxy struct {
@@ -13,6 +14,7 @@ type HAProxy struct {
     BasicConfig string
     ConfigFile  string
     LogSocket   string
+    reapLock *sync.RWMutex
 }
 
 func (haProxy *HAProxy) Init() {
@@ -43,6 +45,10 @@ func (haProxy *HAProxy) Init() {
 
 func (haProxy *HAProxy) Run() error {
     script := haProxy.ScriptPath + "reload.sh"
+
+    haProxy.reapLock.RLock()
+    defer haProxy.reapLock.RUnlock()
+
     logger.Notice("Reloading HAProxy - configuration file: %s, reload script: %s", haProxy.ConfigFile, script)
 
     cmd := exec.Command("/bin/bash", script, haProxy.ConfigFile)

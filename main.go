@@ -7,6 +7,9 @@ import (
     "syscall"
     "os/signal"
     "io/ioutil"
+    "sync"
+
+    "github.com/hashicorp/go-reap"
 )
 
 var (
@@ -83,11 +86,13 @@ func main() {
 
     logger.Notice("Starting Vamp Gateway Agent")
 
+    var reapLock sync.RWMutex
     haProxy := HAProxy{
         ScriptPath:    *scriptPath,
         BasicConfig:        *configurationPath + *configurationBasicFile,
         ConfigFile:         *configurationPath + "haproxy.cfg",
         LogSocket:          *configurationPath + "haproxy.log.sock",
+        reapLock:      &reapLock,
     }
 
     if _, err := os.Stat(haProxy.ConfigFile); os.IsNotExist(err) {
@@ -104,6 +109,26 @@ func main() {
 
     cleanup := func() {
         os.Remove(haProxy.LogSocket)
+    }
+
+    // Wait for died children to avoid zombies
+    if reap.IsSupported() {
+        logger.Notice("Automatically reaping child processes")
+        pids := make(reap.PidCh, 1)
+        errors := make(reap.ErrorCh, 1)
+        go func() {
+            for {
+                select {
+                case pid := <-pids:
+                    logger.Notice("Reaped child process %d", pid)
+                case err := <-errors:
+                    logger.Panic("Error reaping child process: %v", err)
+                }
+            }
+        }()
+        go reap.ReapChildren(pids, errors, nil, &reapLock)
+    } else {
+        logger.Notice("Child process reaping is not supported on this platform.")
     }
 
     // Catch a CTR+C exits so the cleanup routine is called.

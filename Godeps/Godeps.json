@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/magneticio/vamp-gateway-agent",
-	"GoVersion": "go1.5.2",
+	"GoVersion": "go1.7",
 	"Deps": [
 		{
 			"ImportPath": "github.com/coreos/etcd/client",
@@ -46,6 +46,10 @@
 		{
 			"ImportPath": "golang.org/x/net/context",
 			"Rev": "9946ad7d5eae91d8edca4f54d1a1e130a052e823"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/go-reap",
+			"Rev": "04ce4d0638f3b39b8a8030e2a22c4c90771fa5d6"
 		}
 	]
 }
