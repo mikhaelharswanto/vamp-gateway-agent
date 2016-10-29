@@ -7,6 +7,20 @@ if [ ! -e ${pid_file} ] ; then
     touch ${pid_file}
 fi
 
+function haproxy_reload() {
+    haproxy -f ${configuration} -p ${pid_file} -D -st $(cat ${pid_file})
+}
+
+function validate_sockets() {
+    observed_nof_sockets=`ls /usr/local/vamp/*.sock | grep -iv haproxy.log.sock | wc -l`
+    expected_nof_sockets=`cat /usr/local/vamp/haproxy.cfg | grep bind | grep .sock | uniq | wc -l`
+    if [ "x$observed_nof_sockets" == "x$expected_nof_sockets" ]; then
+        echo 'true'
+    else
+        echo 'false'
+    fi
+}
+
 PORTS=()
 
 regex='^\s*bind 0\.0\.0\.0:([0-9]+)$'
@@ -28,7 +42,14 @@ done
 
 sleep 0.1
 
-haproxy -f ${configuration} -p ${pid_file} -D -st $(cat ${pid_file})
+haproxy_reload
+retry=0
+while [ "x`validate_sockets`" == "xfalse" ] && [ "$retry" -lt 3 ]; do
+    sleep 0.5
+    echo "Not all sockets are up, reloading again...."
+    retry=$((retry+1))
+    haproxy_reload
+done
 
 for i in "${PORTS[@]}"; do
   iptables -w -D INPUT -p tcp --dport ${i} --syn -j DROP
