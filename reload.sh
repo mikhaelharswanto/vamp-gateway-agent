@@ -43,13 +43,9 @@ done
 sleep 0.1
 
 haproxy_reload
-retry=0
-while [ "x`validate_sockets`" == "xfalse" ] && [ "$retry" -lt 3 ]; do
-    sleep 0.5
-    echo "Not all sockets are up, reloading again...."
-    retry=$((retry+1))
-    haproxy_reload
-done
+if [ "x`validate_sockets`" == "xfalse" ]; then
+    kill 1
+fi
 
 for i in "${PORTS[@]}"; do
   iptables -w -D INPUT -p tcp --dport ${i} --syn -j DROP
