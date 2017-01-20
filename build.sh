@@ -93,7 +93,7 @@ function go_make() {
 
           assembly_go="${project}_${version}_${goos}_${goarch}.tar.gz"
 
-          cp -f ${dir}/reload.sh ${dir}/validate.sh ${dir}/health_check.sh ${dir}/haproxy.basic.cfg ${dir}/${target_vamp}
+          cp -f ${dir}/reload.sh ${dir}/validate.sh ${dir}/health_check.sh ${dir}/replace_slave_mesos.py ${dir}/haproxy.basic.cfg ${dir}/${target_vamp}
           cd ${dir}/${target} && tar -zcf ${assembly_go} vamp
           mv ${dir}/${target}/${assembly_go} ${dir}/${target_docker} 2> /dev/null
 
@@ -115,6 +115,7 @@ function docker_make {
         printf "\n$1\n" >> ${append_to}
     }
 
+    append "RUN apk update && apk add python"
     append "ADD ${project}_${version}_linux_amd64.tar.gz /usr/local"
     append "ENTRYPOINT [\"/usr/local/vamp/${project}\"]"
 }
