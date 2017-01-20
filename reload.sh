@@ -18,6 +18,10 @@ function cleanup_previously_blocked() {
 }
 
 function read_haproxy_bind_ports() {
+    src_config=${configuration}
+    if [ -e "${configuration}.prev" ]; then
+        src_config="${configuration}.prev"
+    fi
     regex='^\s*bind 0\.0\.0\.0:([0-9]+)$'
     while read line
     do
@@ -48,6 +52,10 @@ function haproxy_reload() {
     haproxy -f ${configuration}.mesos -p ${pid_file} -D -st $(cat ${pid_file})
 }
 
+function save_configuration_file() {
+    cp ${configuration} ${configuration}.prev
+}
+
 trap unblock_traffic EXIT
 
 cleanup_previously_blocked
@@ -56,3 +64,4 @@ block_traffic
 sleep 0.1
 haproxy_reload
 sleep 1
+save_configuration_file
