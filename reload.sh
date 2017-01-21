@@ -48,8 +48,7 @@ function unblock_traffic() {
 }
 
 function haproxy_reload() {
-    python ${slave_mesos_replacer}
-    haproxy -f ${configuration}.mesos -p ${pid_file} -D -st $(cat ${pid_file})
+    haproxy -f ${configuration}.mesos -p ${pid_file} -D -sf $(cat ${pid_file})
 }
 
 function save_configuration_file() {
@@ -60,8 +59,9 @@ trap unblock_traffic EXIT
 
 cleanup_previously_blocked
 read_haproxy_bind_ports
+python ${slave_mesos_replacer}
 block_traffic
-sleep 0.1
+sleep 0.6
 haproxy_reload
 sleep 1
 save_configuration_file
