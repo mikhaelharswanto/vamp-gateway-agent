@@ -2,6 +2,7 @@
 
 configuration=$1
 pid_file=/usr/local/vamp/haproxy.pid
+reload_lock=/usr/local/vamp/reload.lock
 slave_mesos_replacer=/usr/local/vamp/replace_slave_mesos.py
 
 PORTS=()
@@ -9,6 +10,23 @@ PORTS=()
 if [ ! -e ${pid_file} ] ; then
     touch ${pid_file}
 fi
+
+function create_reload_lock() {
+    while [ -e ${reload_lock} ]; do
+        echo "waiting for reload lock..."
+        sleep 1
+    done
+    echo 1 > ${reload_lock}
+}
+
+function remove_reload_lock() {
+    rm ${reload_lock}
+}
+
+function exit_cleanup() {
+    unblock_traffic
+    remove_reload_lock
+}
 
 function cleanup_previously_blocked() {
     iptables -L -v | grep DROP | grep flags:FIN,SYN,RST,ACK/SYN | while read -r entry ; do
@@ -55,8 +73,9 @@ function save_configuration_file() {
     cp ${configuration} ${configuration}.prev
 }
 
-trap unblock_traffic EXIT
+trap exit_cleanup EXIT
 
+create_reload_lock
 cleanup_previously_blocked
 read_haproxy_bind_ports
 python ${slave_mesos_replacer}
