@@ -3,7 +3,15 @@
 haproxy_cfg_file=/usr/local/vamp/haproxy.cfg
 haproxy_cfg_mesos_file=/usr/local/vamp/haproxy.cfg.mesos
 slave_mesos_replacer=/usr/local/vamp/replace_slave_mesos.py
+reload_lock=/usr/local/vamp/reload.lock
 reloader=/usr/local/vamp/reload.sh
+
+function wait_reload_lock() {
+    while [ -e ${reload_lock} ]; do
+        echo "waiting for reload lock..."
+        sleep 1
+    done
+}
 
 function validate_sockets() {
     observed_nof_sockets=`ls /usr/local/vamp/*.sock | grep -iv haproxy.log.sock | wc -l`
@@ -15,17 +23,7 @@ function validate_sockets() {
     fi
 }
 
-function refresh_haproxy_mesos() {
-    cp ${haproxy_cfg_mesos_file} ${haproxy_cfg_mesos_file}.tmp
-    python ${slave_mesos_replacer}
-    if [ "x`cat ${haproxy_cfg_mesos_file}.tmp | wc -l`" != "x`cat ${haproxy_cfg_mesos_file} | wc -l`" ]; then
-        ${reloader} ${haproxy_cfg_file}
-    fi
-    rm ${haproxy_cfg_mesos_file}.tmp
-}
-
-refresh_haproxy_mesos
-
+wait_reload_lock
 if [ "x`validate_sockets`" == "xfalse" ]; then
     exit -1
 else
