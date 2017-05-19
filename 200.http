@@ -1,0 +1,15 @@
+HTTP/1.0 200 OK
+Cache-Control: no-cache
+Connection: close
+Content-Type: text/html
+
+<html>
+  <head>
+    <title>Hello</title>
+  </head>
+  <body>
+    <div>
+          <h2>I'm alive</h2>
+    </div>
+  </body>
+</html>
