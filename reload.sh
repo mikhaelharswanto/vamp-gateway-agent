@@ -14,7 +14,7 @@ fi
 function create_reload_lock() {
     while [ -e ${reload_lock} ]; do
         echo "waiting for reload lock..."
-        sleep 1
+        sleep .1
     done
     echo 1 > ${reload_lock}
 }
@@ -82,5 +82,5 @@ python ${slave_mesos_replacer}
 block_traffic
 sleep 0.6
 haproxy_reload
-sleep 1
+sleep 0.5
 save_configuration_file

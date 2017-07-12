@@ -9,7 +9,7 @@ reloader=/usr/local/vamp/reload.sh
 function wait_reload_lock() {
     while [ -e ${reload_lock} ]; do
         echo "waiting for reload lock..."
-        sleep 1
+        sleep .1
     done
 }
 
