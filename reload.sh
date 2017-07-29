@@ -4,6 +4,7 @@ configuration=$1
 pid_file=/usr/local/vamp/haproxy.pid
 reload_lock=/usr/local/vamp/reload.lock
 slave_mesos_replacer=/usr/local/vamp/replace_slave_mesos.py
+hosts_file=/usr/local/vamp/etc/hosts
 
 PORTS=()
 
@@ -74,8 +75,8 @@ function save_configuration_file() {
 }
 
 function update_etc_hosts() {
-    cat etc/hosts | grep -iv .vamp  > etc/hosts
-    cat ${configuration}.mesos | grep -i acl | grep -i host | grep port. | awk '{print "127.0.0.1\t" $5}' > etc/hosts
+    cat $hosts_file | grep -iv .vamp > $hosts_file
+    cat ${configuration}.mesos | grep -i acl | grep -i host | grep port. | awk '{print "127.0.0.1\t" $5}' > $hosts_file
 }
 
 trap exit_cleanup EXIT
