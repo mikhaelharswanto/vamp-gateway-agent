@@ -73,6 +73,11 @@ function save_configuration_file() {
     cp ${configuration} ${configuration}.prev
 }
 
+function update_etc_hosts() {
+    cat etc/hosts | grep -iv .vamp  > etc/hosts
+    cat ${configuration}.mesos | grep -i acl | grep -i host | grep port. | awk '{print "127.0.0.1\t" $5}' > etc/hosts
+}
+
 trap exit_cleanup EXIT
 
 create_reload_lock
@@ -84,3 +89,4 @@ sleep 0.6
 haproxy_reload
 sleep 0.5
 save_configuration_file
+update_etc_hosts
