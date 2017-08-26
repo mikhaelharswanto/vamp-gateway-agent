@@ -93,7 +93,7 @@ function go_make() {
 
           assembly_go="${project}_${version}_${goos}_${goarch}.tar.gz"
 
-          cp -f ${dir}/reload.sh ${dir}/validate.sh ${dir}/health_check.sh ${dir}/replace_slave_mesos.py ${dir}/haproxy.basic.cfg ${dir}/*.http ${dir}/${target_vamp}
+          cp -f ${dir}/common.sh ${dir}/reload.sh ${dir}/validate.sh ${dir}/health_check.sh ${dir}/replace_slave_mesos.py ${dir}/haproxy.basic.cfg ${dir}/*.http ${dir}/${target_vamp}
           cd ${dir}/${target} && tar -zcf ${assembly_go} vamp
           mv ${dir}/${target}/${assembly_go} ${dir}/${target_docker} 2> /dev/null
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+. /usr/local/vamp/common.sh
+
 haproxy_cfg_file=/usr/local/vamp/haproxy.cfg
 haproxy_cfg_mesos_file=/usr/local/vamp/haproxy.cfg.mesos
 slave_mesos_replacer=/usr/local/vamp/replace_slave_mesos.py
@@ -24,6 +26,7 @@ function validate_sockets() {
 }
 
 wait_reload_lock
+update_etc_hosts
 if [ "x`validate_sockets`" == "xfalse" ]; then
     exit -1
 else

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+. /usr/local/vamp/common.sh
+
 configuration=$1
 pid_file=/usr/local/vamp/haproxy.pid
 reload_lock=/usr/local/vamp/reload.lock
@@ -72,11 +74,6 @@ function haproxy_reload() {
 
 function save_configuration_file() {
     cp ${configuration} ${configuration}.prev
-}
-
-function update_etc_hosts() {
-    cat $hosts_file | grep -iv .vamp > $hosts_file
-    cat ${configuration}.mesos | grep -i acl | grep -i host | grep port. | awk '{print "172.17.0.1\t" $5}' > $hosts_file
 }
 
 trap exit_cleanup EXIT
