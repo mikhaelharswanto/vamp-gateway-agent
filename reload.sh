@@ -81,10 +81,8 @@ trap exit_cleanup EXIT
 create_reload_lock
 cleanup_previously_blocked
 read_haproxy_bind_ports
-python ${slave_mesos_replacer}
 block_traffic
-sleep 0.6
+python ${slave_mesos_replacer}
 haproxy_reload
-sleep 0.5
 save_configuration_file
 update_etc_hosts
